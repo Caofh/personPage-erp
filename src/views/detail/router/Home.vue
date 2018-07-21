@@ -1,7 +1,6 @@
 <template>
   <div>
     <component :is="currentView"></component>
-    123
   </div>
 
 </template>

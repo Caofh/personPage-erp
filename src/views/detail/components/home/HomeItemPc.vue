@@ -4,29 +4,41 @@
 
     <div class="home-container">
       <div class="base-info home-flex-y-center" style="align-items: flex-start;">
-        <div class="home-flex-x-start">
+        <div class="title-par home-flex-x-start">
           <div class="title">标题</div>
-          <div>my funny video</div>
+          <div v-if="!titleLimit" class="title-content">{{ title || '' }}</div>
+          <div v-if="!titleLimit" @click="editTitle" class="edit home-btn">编辑</div>
+
+          <div v-if="titleLimit" class="title-input"><input @ v-model="titleNext"></div>
+          <div v-if="titleLimit" @click="cancelTitle" class="cancel home-btn">取消</div>
+          <div v-if="titleLimit" @click="confirmTitle" class="confirm home-btn">确定</div>
         </div>
 
         <div class="home-flex-x-start">
           <div class="nick-name">昵称</div>
-          <div>Topay</div>
+          <div>{{ nickname || '' }}</div>
         </div>
 
-        <div class="add-resource home-flex-x-start">
-          <div @click="addSource" class="add-btn home-btn">添加资源</div>
-          <div>(6种资源类型)</div>
+        <div class="add-resource home-flex-x-between">
+          <div class="home-flex-x-start">
+            <div @click="addSource" class="add-btn home-btn">添加资源</div>
+            <div>(6种资源类型)</div>
+          </div>
+
+          <div v-if="source.length" class="btn-group home-flex-x-start">
+            <div class="home-btn">预览</div>
+            <div @click="submit" class="home-btn">提交</div>
+          </div>
         </div>
 
         <div class="now-time home-flex-x-start">
           <div class="title">当前时间：</div>
-          <div>2018-7-17 11:34:47</div>
+          <div>{{ nowTimeFormat }}</div>
         </div>
 
       </div>
 
-      <div>
+      <div class="real-content">
         <SourceItem></SourceItem>
       </div>
 
@@ -39,21 +51,31 @@
 import Header from '@/components/HeaderPc.vue'
 import SourceItem from './pc-components/source-item.vue'
 
-//import $ from 'n-zepto'
+//import $ from 'jquery'
 import { mapState } from "vuex"
-import { getList } from '@/api/test'
+import { updateResource } from '@/api/detail'
+import moment from 'moment'
 
 export default {
   name: 'Home',
   data () {
     return {
+      title: 'my funny video', // 当前标题
+      titleNext: '', // 临时存储title内容
+      titleLimit: false, // 标题可变标识
 
+      nickname: 'Topay', // 昵称
+
+      nowTime: moment()
     }
   },
   computed: {
     ...mapState([
-      'source' // 当前选中的tab
-    ])
+      'source' // 当前资源
+    ]),
+    nowTimeFormat () {
+      return this.nowTime.format('YYYY-MM-DD hh:mm:ss')
+    }
 
   },
   created () {
@@ -69,23 +91,105 @@ export default {
 //        source_img_url: ""
       }
       let arr = this.source
-      arr.push(obj)
+      arr.unshift(obj)
 
       this.$store.commit('updateSource', arr)
+
+    },
+
+    timeMove () {
+
+      setInterval(() => {
+        let time = moment()
+        this.nowTime = time
+
+      }, 1000)
+
+    },
+    editTitle () {
+      this.titleNext = this.title
+      this.titleLimit = true
+    },
+    confirmTitle () {
+      this.title = this.titleNext
+      this.titleLimit = false
+    },
+    cancelTitle () {
+      this.titleNext = ''
+      this.titleLimit = false
+    },
+
+    async submit () {
+      /*
+        {
+          "title": "my funny video",
+          "user_id": "1",
+          "user_name": "Topay",
+          "timestamp": "1531452424821",
+          "source_data": [
+              {
+                  "source_type": "6",
+                  "source_content": "随便输入点的内容吧",
+                  "source_title": "没有",
+                  "source_img_url": "http://118.190.207.166:8000/personPage/images/img_1.jpeg"
+              },
+              {
+                  "source_type": "6",
+                  "source_content": "随便输入点的内容吧1",
+                  "source_title": "没有1",
+                  "source_img_url": "http://118.190.207.166:8000/personPage/images/img_1.jpeg"
+              }
+          ]
+        }
+      */
+      console.log(this.source)
+
+      const title = this.title
+      const user_id = 1
+      const user_name = this.nickname
+      const timestamp = this.nowTime.format('x')
+
+      // 组织资源信息
+      let source_data = []
+      this.source.map((item) => {
+        item.source_img.map((itemSon) => {
+          let obj = {
+            source_type: item.source_type,
+            source_content: item.source_content,
+            source_title: itemSon.source_title,
+            source_img_url: itemSon.source_url
+          }
+          source_data.push(obj)
+
+        })
+      })
+
+      const data = {
+        title,
+        user_id,
+        user_name,
+        timestamp,
+        source_data
+      }
+//      console.log(data)
+
+      const dataList = await updateResource(data)
+
+      console.log(dataList)
+
+
+
 
     }
 
   },
-  async mounted () {
-    console.log(this.fontSize)
-
-    const dataList = await getList()
-    console.log(dataList)
+  mounted () {
+    this.timeMove() // 当前时间倒计时
 
   },
   components: {
     Header,
-    SourceItem
+    SourceItem,
   }
 
 }
@@ -106,6 +210,8 @@ export default {
       .base-info {
         position: relative;
         padding: 30px 0 30px 30px;
+        height: 215px;
+
         & > div {
           margin-bottom: 30px;
           text-align: left;
@@ -125,10 +231,73 @@ export default {
           .add-btn {
             width: 108px;
             margin-right: 30px;
+
+            -webkit-transition: all 0.3s ease-out;
+            -moz-transition: all 0.3s ease-out;
+            -ms-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            transition: all 0.3s ease-out;
+
+            &:hover {
+              background: #D66008;
+            }
           }
         }
         & > .add-resource {
+          width: 1140px;
           margin-bottom: 0;
+
+          .btn-group {
+            width: 240px;
+
+            .home-btn {
+              width: 108px;
+              margin-right: 10px;
+
+              -webkit-transition: all 0.3s ease-out;
+              -moz-transition: all 0.3s ease-out;
+              -ms-transition: all 0.3s ease-out;
+              -o-transition: all 0.3s ease-out;
+              transition: all 0.3s ease-out;
+
+              &:hover {
+                background: #D66008;
+              }
+            }
+            .home-btn:last-child {
+              margin-right: 0;
+            }
+          }
+        }
+
+        & > .title-par {
+          .title-content, .title-input {
+            width: 300px;
+          }
+          .title-input {
+            input {
+              width: 280px;
+              height: 30px;
+              padding: 0 10px;
+            }
+          }
+
+          .edit, .confirm, .cancel {
+            width: 60px;
+            height: 25px;
+            line-height: 25px;
+            margin-right: 10px;
+
+            -webkit-transition: all 0.3s ease-out;
+            -moz-transition: all 0.3s ease-out;
+            -ms-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            transition: all 0.3s ease-out;
+
+            &:hover {
+              background: #D66008;
+            }
+          }
         }
 
         .now-time {

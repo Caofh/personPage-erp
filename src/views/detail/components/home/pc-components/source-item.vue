@@ -31,7 +31,7 @@
 
 
           <div class="add-img">
-            <input @change="uploadFile" :data-index="index" type="file">
+            <input @change="uploadFile" :data-index="index" :data-type="item.source_type" type="file">
           </div>
 
         </div>
@@ -41,9 +41,11 @@
       <div v-if="item.source_type == 2" class="source source-subject">
         <div class="subject-content home-flex-x-between">
           <div class="img home-img">
-            <img src="../../../assets/img/demo.jpg">
+            <img v-if="item.source_img.length" :src="item.source_img[0].source_url || ''">
 
-            <div v-if="false" class="add-img"></div>
+            <div v-if="!item.source_img.length" class="add-img">
+              <input @change="uploadFile" :data-index="index" :data-type="item.source_type" type="file">
+            </div>
           </div>
 
           <div class="context">
@@ -56,9 +58,11 @@
       <div v-if="item.source_type == 3" class="source source-left-img">
         <div class="subject-content home-flex-x-between">
           <div class="img home-img">
-            <img src="../../../assets/img/demo.jpg">
+            <img v-if="item.source_img.length" :src="item.source_img[0].source_url || ''">
 
-            <div v-if="false" class="add-img"></div>
+            <div v-if="!item.source_img.length" class="add-img">
+              <input @change="uploadFile" :data-index="index" :data-type="item.source_type" type="file">
+            </div>
           </div>
 
           <div class="context">
@@ -75,9 +79,11 @@
           </div>
 
           <div class="img home-img">
-            <img src="../../../assets/img/demo.jpg">
+            <img v-if="item.source_img.length" :src="item.source_img[0].source_url || ''">
 
-            <div v-if="false" class="add-img"></div>
+            <div v-if="!item.source_img.length" class="add-img">
+              <input @change="uploadFile" :data-index="index" :data-type="item.source_type" type="file">
+            </div>
           </div>
 
         </div>
@@ -86,17 +92,13 @@
       <div v-if="item.source_type == 5" class="source source-three">
         <div class="subject-content">
           <div class="img-group">
-            <div class="img home-img">
-              <img src="../../../assets/img/demo.jpg">
-            </div>
-            <div class="img home-img">
-              <img src="../../../assets/img/demo.jpg">
-            </div>
-            <div class="img home-img">
-              <img src="../../../assets/img/demo.jpg">
+            <div v-for="itemSon in item.source_img" class="img home-img">
+              <img :src="itemSon.source_url || ''">
             </div>
 
-            <div v-if="false" class="add-img"></div>
+            <div v-if="item.source_img.length < 3" class="add-img">
+              <input @change="uploadFile" :data-index="index" :data-type="item.source_type" type="file">
+            </div>
           </div>
 
           <div class="context">
@@ -108,57 +110,45 @@
 
       <div v-if="item.source_type == 6" class="source source-two-waterfall">
         <div class="waterfall-content">
-          <div class="carousel-item">
+          <div v-for="itemSon in item.source_img" class="carousel-item">
             <div class="img home-img">
-              <img src="../../../assets/img/demo.jpg">
+              <img :src="itemSon.source_url || ''">
             </div>
             <div class="context">
-              <input type="text" placeholder="标题">
+              <input type="text" placeholder="标题" v-model="itemSon.source_title">
             </div>
 
           </div>
 
-          <div class="add-img"></div>
+          <div class="add-img">
+            <input @change="uploadFile" :data-index="index" :data-type="item.source_type" type="file">
+          </div>
 
         </div>
       </div>
 
     </div>
 
+    <Dialog :message="message"></Dialog>
+    <div class="home-hidden"><img id="target" src=""></div>
+
   </div>
 </template>
 
 <script>
-//import $ from 'n-zepto'
 import { mapState } from "vuex"
-import { uploadImg } from '../../../../../api/home'
+import { uploadImg, uploadBase64Img } from '@/api/detail'
+import Dialog from '@/components/dialog.vue'
+import jcrop_plu from '@/utils/jcrop/jcrop'
+
 
 export default {
   name: 'Home',
   data () {
     return {
-      /*
-        {
-          "title": "my funny video",
-          "user_id": "1",
-          "user_name": "Topay",
-          "timestamp": "1531452424821",
-          "source_data": [
-              {
-                  "source_type": "6",
-                  "source_content": "随便输入点的内容吧",
-                  "source_title": "没有",
-                  "source_img_url": "http://118.190.207.166:8000/personPage/images/img_1.jpeg"
-              },
-              {
-                  "source_type": "6",
-                  "source_content": "随便输入点的内容吧1",
-                  "source_title": "没有1",
-                  "source_img_url": "http://118.190.207.166:8000/personPage/images/img_1.jpeg"
-              }
-          ]
-        }
-      */
+      imgPath: 'person', // 服务器上存储图片的路径
+      // 弹窗模板
+      message: {} // dialog弹窗数据
 
     }
   },
@@ -179,16 +169,17 @@ export default {
     },
 
     async uploadFile (e) {
-//      console.log(e)
+      const _this = this
 
-      // 当前数据索引
-      const count = e.target.getAttribute("data-index")
-      console.log(count)
+      const count = e.target.getAttribute("data-index") // 当前数据索引
+      const type = e.target.getAttribute("data-type") // 当前数据的资源类型
+      const curConfig = this.getCutConfig(type)
+      const setSelect = curConfig.setSelect
+      const aspectRatio = curConfig.aspectRatio
 
       // 文件
       const file = e.target.files[0]
-      // 文件类型
-      let file_type = file.type.split('/')[0]
+      let file_type = this.imgPath // 存储图片路径
 
       let formData = new FormData()
       formData.append('file', file)
@@ -197,27 +188,125 @@ export default {
         const dataList = await uploadImg(formData, file_type)
 
         // 更新dom
-        let imgObj = {
-          source_url: dataList.target_path || '',
-          source_title: ''
+        const imgUrl = dataList.target_path || ''
+
+        // 裁剪弹窗生成
+        const html = `<div><img id="dialog_target" class="img-show" src="${imgUrl}"></div>`
+        let option = {
+          visiable: true,
+          header: '',
+          footer: '',
+          html: html,
+          btnType: 2,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          name: 'jcrop_dialog',        //(弹窗node-type名称,如果存在的话弹窗的class中也会增添一个名称,可以对这个新增的class名称进行css扩展，针对本个弹窗，具有独特性和多弹窗共存性质，用作css补充，这样可以实现任意样式的弹窗)
+          size: 'big',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+          callback: function () {
+            $('#target').attr('src', imgUrl)
+
+            jcrop_plu.destroy() // 先注销掉当前的裁剪.
+            jcrop_plu.init({
+              target: $('#dialog_target'), // 目标裁剪图片元素名称
+              jcrop_config: { // Jcrop的配置信息
+                setSelect: setSelect, // 筛选框初始化位置和宽度（[x坐标，y坐标，宽度，高度]）
+                aspectRatio: aspectRatio, // 选框宽高比（width/height）
+                boxWidth: 600, // 画布宽度
+                boxHeight: 400 // 画布高度
+              },
+              select_callback: function (c) { // 筛选框移动时的回调函数（返回筛选框的位置和尺寸信息）
+                // console.log(c)
+                var html = '<div class="js-coords" style="z-index:10000;position: absolute;top: 0;left: 0;color: #f71;">' +
+                  Math.floor(c.w) + ' * ' + Math.floor(c.h) + '</div>'
+
+                $('.js-coords').remove()
+                $('.jcrop-box').last().after(html)
+
+              }
+            })
+
+          },
+          buttons: {
+            confirm: function () {
+              let img = jcrop_plu.getDataURL() // 得到裁剪后的base64文件流
+              _this.uploadBase64(img, count) // 上传base64裁剪后的文件方法
+
+
+
+            },
+          cancel: function () {
+              var nodeName = $('[node-type="jcrop_dialog"]')
+              nodeName.fadeOut(400)
+              setTimeout(function () {
+                  nodeName.remove()
+              }, 400)
+              console.log('夺得取消按钮的最高控制权!')
+          }
+          }
+
         }
-        let arr = this.source
-        arr[count].source_img.push(imgObj)
-
-        this.$store.commit('updateSource', arr)
-
-//        console.log(dataList)
-//        console.log(this.source)
+        this.message = option
 
       } catch (error) {
         console.log(error)
 
       }
 
+    },
 
+    // 上传base64文件方法
+    async uploadBase64 (img, count) {
+      const _this = this
 
+      // 组织传参，将图片base64数据流上传
+      let data = {
+        image: img.base64,
+        path: this.imgPath // 服务器上存储图片的路径
+      }
+
+      const dataList = await uploadBase64Img(data)
+//      console.log(dataList)
+
+      // 更新dom
+      let imgObj = {
+        source_url: dataList.target_path || '',
+        source_title: ''
+      }
+      let arr = this.source
+      arr[count].source_img.push(imgObj)
+
+      this.$store.commit('updateSource', arr)
+
+      $('[node-type="jcrop_dialog"]').fadeOut(400, function () {
+        _this.message.visible = false
+
+        // 清空添加图片按钮的值
+        $('.add-img').find('[type="file"]').val('')
+      })
+
+    },
+
+    // 获取裁剪框初始化配置信息
+    getCutConfig (type) {
+      const typeNew = String(type)
+      let setSelect = [100, 100, 300, 300]
+      let aspectRatio = 1
+
+      switch (typeNew) {
+        case ('1'): setSelect = [100, 100, 220, 145]; aspectRatio = 220/145; break;
+        case ('2'): setSelect = [100, 100, 370, 240]; aspectRatio = 370/240; break;
+        case ('3'): setSelect = [100, 100, 230, 307]; aspectRatio = 230/307; break;
+        case ('4'): setSelect = [100, 100, 230, 307]; aspectRatio = 230/307; break;
+        case ('5'): setSelect = [100, 100, 185, 245]; aspectRatio = 185/245; break;
+        case ('6'): setSelect = [100, 100, 175, 220]; aspectRatio = 175/220; break;
+
+      }
+
+      return {
+        setSelect,
+        aspectRatio
+      }
 
     }
+
 
   },
   mounted () {
@@ -233,20 +322,24 @@ export default {
 
       },
       deep: true
-    }
+    },
 
 
 
 
 
 
+
+  },
+  components: {
+    Dialog
   }
 
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style lang="scss">
   @import "../../../../../assets/css/base";
 
   .source-item-par {
@@ -334,6 +427,22 @@ export default {
           .img {
             width: 370px;
             height: 240px;
+
+            .add-img {
+              float: left;
+              width: 120px;
+              height: 120px;
+              background: url(../../../assets/img/addImg.png) no-repeat center / 100% 100%;
+              cursor: pointer;
+
+              [type='file'] {
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                line-height: 300px;
+                cursor: pointer;
+              }
+            }
           }
 
           .context {
@@ -364,6 +473,22 @@ export default {
             width: 230px;
             height: 305px;
             margin-left: 45px;
+
+            .add-img {
+              float: left;
+              width: 120px;
+              height: 120px;
+              background: url(../../../assets/img/addImg.png) no-repeat center / 100% 100%;
+              cursor: pointer;
+
+              [type='file'] {
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                line-height: 300px;
+                cursor: pointer;
+              }
+            }
           }
 
           .context {
@@ -410,6 +535,22 @@ export default {
             width: 230px;
             height: 305px;
             margin-right: 80px;
+
+            .add-img {
+              float: left;
+              width: 120px;
+              height: 120px;
+              background: url(../../../assets/img/addImg.png) no-repeat center / 100% 100%;
+              cursor: pointer;
+
+              [type='file'] {
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                line-height: 300px;
+                cursor: pointer;
+              }
+            }
           }
 
         }
@@ -428,6 +569,22 @@ export default {
               width: 186px;
               height: 245px;
               margin-right: 100px;
+            }
+
+            .add-img {
+              float: left;
+              width: 120px;
+              height: 120px;
+              background: url(../../../assets/img/addImg.png) no-repeat center / 100% 100%;
+              cursor: pointer;
+
+              [type='file'] {
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                line-height: 300px;
+                cursor: pointer;
+              }
             }
           }
 
@@ -487,12 +644,33 @@ export default {
             height: 120px;
             background: url(../../../assets/img/addImg.png) no-repeat center / 100% 100%;
             cursor: pointer;
+
+            [type='file'] {
+              width: 100%;
+              height: 100%;
+              opacity: 0;
+              line-height: 300px;
+              cursor: pointer;
+            }
           }
 
         }
 
       }
 
+    }
+
+    .jcrop_dialog{
+
+      .img-show{
+        max-width:500px;
+      }
+
+      .prompt{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
 
   }

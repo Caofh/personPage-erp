@@ -1,0 +1,2 @@
+webpackJsonp([9],{HfTx:function(e,t,s){"use strict";Object.defineProperty(t,"__esModule",{value:!0});t.default={setTest:function(e,t){e.test=t}}}},["HfTx"]);
+//# sourceMappingURL=mutations.694a3f579524537b243d.js.map
