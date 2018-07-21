@@ -1,2 +1,0 @@
-webpackJsonp([10],{RFL8:function(e,t,o){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var c={init:function(e,t){e.dispatch,e.commit;console.log(t)}};t.default=c}},["RFL8"]);
-//# sourceMappingURL=actions.ccda6a051e900a58aa14.js.map

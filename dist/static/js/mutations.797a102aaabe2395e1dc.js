@@ -1,0 +1,2 @@
+webpackJsonp([10],{"6KvC":function(e,t,s){"use strict";Object.defineProperty(t,"__esModule",{value:!0});t.default={setTest:function(e,t){e.test=t}}}},["6KvC"]);
+//# sourceMappingURL=mutations.797a102aaabe2395e1dc.js.map
