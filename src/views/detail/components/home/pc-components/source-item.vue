@@ -179,7 +179,36 @@ export default {
 
       // 文件
       const file = e.target.files[0]
-      let file_type = this.imgPath // 存储图片路径
+      let file_type = this.imgPath // 存储图片路径(这里指的是服务器端的路径)
+//      console.log(e.target.files[0])
+
+      // 不是图片禁止上传
+      const sourceType = file.type // 上传的资源类型
+      if (! /image/g.test(sourceType)) {
+        let option = {
+          visiable: true,
+          html: '亲，请上传图片类型的资源哦~😁',
+          btnType: 1,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+        }
+        this.message = option
+
+        return false
+      }
+
+      // 超过1.5M图片禁止上传，提供压缩图片方式
+      const imgSize = file.size // 上传图片的大小（单位：B）
+      if (imgSize / (1000000) > 1.5) {
+        let option = {
+          visiable: true,
+          html: '<div>亲，图片太大啦，请先使用熊猫压缩压缩下图片呗~😁</div>' +
+          '<div><a style="text-decoration: underline;color:#80c2ff;" href="https://tinypng.com/" target="_blank">熊猫压缩</a></div>',
+          btnType: 1,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+        }
+        this.message = option
+        return false
+      }
 
       let formData = new FormData()
       formData.append('file', file)
@@ -190,63 +219,76 @@ export default {
         // 更新dom
         const imgUrl = dataList.target_path || ''
 
-        // 裁剪弹窗生成
-        const html = `<div><img id="dialog_target" class="img-show" src="${imgUrl}"></div>`
-        let option = {
-          visiable: true,
-          header: '',
-          footer: '',
-          html: html,
-          btnType: 2,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
-          name: 'jcrop_dialog',        //(弹窗node-type名称,如果存在的话弹窗的class中也会增添一个名称,可以对这个新增的class名称进行css扩展，针对本个弹窗，具有独特性和多弹窗共存性质，用作css补充，这样可以实现任意样式的弹窗)
-          size: 'big',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
-          callback: function () {
-            $('#target').attr('src', imgUrl)
+        // 预加载图片，图片加载好再显示裁剪弹窗
+        let imgLoad = new Image()
+        imgLoad.src = imgUrl
+        imgLoad.onload = function () {
 
-            jcrop_plu.destroy() // 先注销掉当前的裁剪.
-            jcrop_plu.init({
-              target: $('#dialog_target'), // 目标裁剪图片元素名称
-              jcrop_config: { // Jcrop的配置信息
-                setSelect: setSelect, // 筛选框初始化位置和宽度（[x坐标，y坐标，宽度，高度]）
-                aspectRatio: aspectRatio, // 选框宽高比（width/height）
-                boxWidth: 600, // 画布宽度
-                boxHeight: 400 // 画布高度
-              },
-              select_callback: function (c) { // 筛选框移动时的回调函数（返回筛选框的位置和尺寸信息）
-                // console.log(c)
-                var html = '<div class="js-coords" style="z-index:10000;position: absolute;top: 0;left: 0;color: #f71;">' +
-                  Math.floor(c.w) + ' * ' + Math.floor(c.h) + '</div>'
+          // 裁剪弹窗生成
+          const html = `<div><img id="dialog_target" class="img-show" src="${imgUrl}"></div>`
+          let option = {
+            visiable: true,
+            header: '',
+            footer: '',
+            html: html,
+            btnType: 2,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+            name: 'jcrop_dialog',        //(弹窗node-type名称,如果存在的话弹窗的class中也会增添一个名称,可以对这个新增的class名称进行css扩展，针对本个弹窗，具有独特性和多弹窗共存性质，用作css补充，这样可以实现任意样式的弹窗)
+            size: 'big',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+            callback: function () {
+              $('#target').attr('src', imgUrl)
 
-                $('.js-coords').remove()
-                $('.jcrop-box').last().after(html)
+              jcrop_plu.destroy() // 先注销掉当前的裁剪.
+              jcrop_plu.init({
+                target: $('#dialog_target'), // 目标裁剪图片元素名称
+                jcrop_config: { // Jcrop的配置信息
+                  setSelect: setSelect, // 筛选框初始化位置和宽度（[x坐标，y坐标，宽度，高度]）
+                  aspectRatio: aspectRatio, // 选框宽高比（width/height）
+                  boxWidth: 600, // 画布宽度
+                  boxHeight: 400 // 画布高度
+                },
+                select_callback: function (c) { // 筛选框移动时的回调函数（返回筛选框的位置和尺寸信息）
+                   console.log(c)
+                  var html = '<div class="js-coords" style="z-index:10000;position: absolute;top: 0;left: 0;color: #f71;">' +
+                    Math.floor(c.w) + ' * ' + Math.floor(c.h) + '</div>'
 
-              }
-            })
+                  $('.js-coords').remove()
+                  $('.jcrop-box').last().after(html)
 
-          },
-          buttons: {
-            confirm: function () {
-              let img = jcrop_plu.getDataURL() // 得到裁剪后的base64文件流
-              _this.uploadBase64(img, count) // 上传base64裁剪后的文件方法
-
-
+                }
+              })
 
             },
-          cancel: function () {
-              var nodeName = $('[node-type="jcrop_dialog"]')
-              nodeName.fadeOut(400)
-              setTimeout(function () {
-                  nodeName.remove()
-              }, 400)
-              console.log('夺得取消按钮的最高控制权!')
+            buttons: {
+              confirm: function () {
+                let img = jcrop_plu.getDataURL() // 得到裁剪后的base64文件流
+                _this.uploadBase64(img, count) // 上传base64裁剪后的文件方法
+
+              },
+              cancel: function () {
+                $('[node-type="jcrop_dialog"]').fadeOut(400, function () {
+                  _this.message.visible = false
+
+                  // 清空添加图片按钮的值
+                  $('.add-img').find('[type="file"]').val('')
+                })
+
+              }
+
+            }
+
           }
-          }
+          _this.message = option
 
         }
-        this.message = option
 
       } catch (error) {
-        console.log(error)
+        let option = {
+          visiable: true,
+          html: error.message,
+          btnType: 1,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+        }
+        this.message = option
 
       }
 
@@ -262,25 +304,38 @@ export default {
         path: this.imgPath // 服务器上存储图片的路径
       }
 
-      const dataList = await uploadBase64Img(data)
+      try {
+        const dataList = await uploadBase64Img(data)
 //      console.log(dataList)
 
-      // 更新dom
-      let imgObj = {
-        source_url: dataList.target_path || '',
-        source_title: ''
+        // 更新dom
+        let imgObj = {
+          source_url: dataList.target_path || '',
+          source_title: ''
+        }
+        let arr = this.source
+        arr[count].source_img.push(imgObj)
+
+        this.$store.commit('updateSource', arr)
+
+        $('[node-type="jcrop_dialog"]').fadeOut(400, function () {
+          _this.message.visible = false
+
+          // 清空添加图片按钮的值
+          $('.add-img').find('[type="file"]').val('')
+        })
+
+      } catch (error) {
+        let option = {
+          visiable: true,
+          html: error.message,
+          btnType: 1,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+        }
+        this.message = option
+
       }
-      let arr = this.source
-      arr[count].source_img.push(imgObj)
 
-      this.$store.commit('updateSource', arr)
-
-      $('[node-type="jcrop_dialog"]').fadeOut(400, function () {
-        _this.message.visible = false
-
-        // 清空添加图片按钮的值
-        $('.add-img').find('[type="file"]').val('')
-      })
 
     },
 
@@ -307,28 +362,17 @@ export default {
 
     }
 
-
   },
   mounted () {
-    console.log('123', this.source)
 
   },
   watch: {
-    'source': {
-      handler(val, oldVal) {
-
-        console.log(val)
-
-
-      },
-      deep: true
-    },
-
-
-
-
-
-
+//    'source': {
+//      handler(val, oldVal) {
+//        console.log(val)
+//      },
+//      deep: true
+//    },
 
   },
   components: {
@@ -661,9 +705,15 @@ export default {
     }
 
     .jcrop_dialog{
+      
+      .prompt {
+        background: url("../../../../../assets/img/loading.gif") no-repeat center / 30px 30px;
+      }
 
       .img-show{
-        max-width:500px;
+        opacity: 0;
+        max-width:600px;
+        max-height: 400px;
       }
 
       .prompt{

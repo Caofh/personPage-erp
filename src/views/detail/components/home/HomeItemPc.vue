@@ -44,12 +44,15 @@
 
     </div>
 
+    <Dialog :message="message"></Dialog>
+
   </div>
 </template>
 
 <script>
 import Header from '@/components/HeaderPc.vue'
 import SourceItem from './pc-components/source-item.vue'
+import Dialog from '@/components/dialog.vue'
 
 //import $ from 'jquery'
 import { mapState } from "vuex"
@@ -66,7 +69,8 @@ export default {
 
       nickname: 'Topay', // 昵称
 
-      nowTime: moment()
+      nowTime: moment(),
+      message: {} //  dialog弹窗数据
     }
   },
   computed: {
@@ -120,29 +124,7 @@ export default {
     },
 
     async submit () {
-      /*
-        {
-          "title": "my funny video",
-          "user_id": "1",
-          "user_name": "Topay",
-          "timestamp": "1531452424821",
-          "source_data": [
-              {
-                  "source_type": "6",
-                  "source_content": "随便输入点的内容吧",
-                  "source_title": "没有",
-                  "source_img_url": "http://118.190.207.166:8000/personPage/images/img_1.jpeg"
-              },
-              {
-                  "source_type": "6",
-                  "source_content": "随便输入点的内容吧1",
-                  "source_title": "没有1",
-                  "source_img_url": "http://118.190.207.166:8000/personPage/images/img_1.jpeg"
-              }
-          ]
-        }
-      */
-      console.log(this.source)
+//      console.log(this.source)
 
       const title = this.title
       const user_id = 1
@@ -173,12 +155,28 @@ export default {
       }
 //      console.log(data)
 
-      const dataList = await updateResource(data)
+      try {
+        const dataList = await updateResource(data)
 
-      console.log(dataList)
+        let option = {
+          visiable: true,
+          html: dataList.original.msg,
+          btnType: 1,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+        }
+        this.message = option
 
+      } catch (error) {
 
+        let option = {
+          visiable: true,
+          html: error.message,
+          btnType: 1,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+        }
+        this.message = option
 
+      }
 
     }
 
@@ -190,6 +188,7 @@ export default {
   components: {
     Header,
     SourceItem,
+    Dialog
   }
 
 }

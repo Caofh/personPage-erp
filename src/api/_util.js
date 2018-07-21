@@ -40,30 +40,21 @@ function callApi (apiRoot = '/') {
   })
 
   obj.interceptors.response.use(res => {
+    // console.log(res)
+
+    // 如果请求有误抛出异常
+    if (res.data
+      && res.data.original
+      && res.data.original.status
+      && res.data.original.status == 'fail') {
+
+      throw new Error(res.data.original.msg);
+    }
+
     return res.data
   }, err => {
-    // let error
-    // function netError () {
-    //   if (isTeacher()) {
-    //     error = new Error('Network error, please check your network settings')
-    //   } else {
-    //     error = new Error('网络错误，请检查网络设置')
-    //   }
-    // }
-    //
-    // if (err.message === 'Network Error' || ~(err.message || '').indexOf('timeout')) {
-    //   netError()
-    //   return Promise.reject(error)
-    // }
-    //
-    // const { status, data = {} } = err.response || {}
-    //
-    // let error = data.message ? new Error(data.message) : err
-    // if (~error.message.indexOf('timeout')) {
-    //   netError()
-    // }
 
-    const error = err
+    let error = err
     return Promise.reject(error)
 
   })
