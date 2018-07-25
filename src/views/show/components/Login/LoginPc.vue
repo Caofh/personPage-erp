@@ -81,7 +81,13 @@ export default {
 <style lang="scss">
   
   body {
-    background: rgba(255, 119, 17, 0.2);
+    /*渐变色*/
+    background: -moz-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255, 255, 255, 0)), color-stop(30%, rgba(255, 119, 17, 0.68))) !important;
+    background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
+    background: -o-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
+    background: -ms-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
 
     .login-pc {
       .content {
@@ -119,7 +125,7 @@ export default {
 
             .phone, .password {
               width: 300px;
-              height: 30px;
+              height: 40px;
               box-shadow: 0 0 5px #fff;
               border-radius: 5px;
               padding: 0 5px;
@@ -132,11 +138,11 @@ export default {
               .input-par {
                 input {
                   width: 260px;
-                  height: 30px;
+                  height: 40px;
                   background: none;
                   border: none;
                   color: #fff;
-                  font-size: 16px;
+                  font-size: 18px;
                 }
                 input::-webkit-input-placeholder{
                   color: #fff;

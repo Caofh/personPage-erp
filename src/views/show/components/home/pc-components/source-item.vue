@@ -247,7 +247,7 @@ export default {
                   boxHeight: 400 // 画布高度
                 },
                 select_callback: function (c) { // 筛选框移动时的回调函数（返回筛选框的位置和尺寸信息）
-                   console.log(c)
+//                   console.log(c)
                   var html = '<div class="js-coords" style="z-index:10000;position: absolute;top: 0;left: 0;color: #f71;">' +
                     Math.floor(c.w) + ' * ' + Math.floor(c.h) + '</div>'
 

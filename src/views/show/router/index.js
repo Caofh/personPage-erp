@@ -13,6 +13,12 @@ export default new Router({
 
     },
     {
+      path: '/apply',
+      name: 'Apply',
+      component: () => import(/* webpackChunkName: "ChannelShow" */ './Apply')
+
+    },
+    {
       path: '/detail',
       name: 'Home',
       component: () => import(/* webpackChunkName: "ChannelShow" */ './Home')
