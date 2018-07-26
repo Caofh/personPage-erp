@@ -7,44 +7,44 @@
         <div class="home-flex-x-between" style="align-items: flex-start;">
           <div class="real-content">
             <div class="phone home-flex-x-start">
-              <div>手机号：</div>
+              <div>手机号<span class="red">*</span>：</div>
               <div><input type="text" v-model="baseInfo.phone"></div>
               <div v-if="limitMark && !baseInfo.phone" class="error-tip">请输入手机号</div>
             </div>
             <div class="email home-flex-x-start">
-              <div>邮箱：</div>
+              <div>邮箱<span class="red">*</span>：</div>
               <div><input type="text" v-model="baseInfo.email"></div>
-              <div v-if="limitMark && !baseInfo.phone" class="error-tip">请输入邮箱</div>
+              <div v-if="limitMark && !baseInfo.email" class="error-tip">请输入邮箱</div>
             </div>
             <div class="nickname home-flex-x-start">
-              <div>昵称：</div>
+              <div>昵称<span class="red">*</span>：</div>
               <div><input type="text" v-model="baseInfo.nickname"></div>
-              <div v-if="limitMark && !baseInfo.phone" class="error-tip">请输入昵称</div>
+              <div v-if="limitMark && !baseInfo.nickname" class="error-tip">请输入昵称</div>
             </div>
             <div class="sex home-flex-x-start">
-              <div>性别：</div>
+              <div>性别<span class="red">*</span>：</div>
               <div><input type="text" v-model="baseInfo.sex"></div>
-              <div v-if="limitMark && !baseInfo.phone" class="error-tip">请输入性别</div>
+              <div v-if="limitMark && !baseInfo.sex" class="error-tip">请输入性别</div>
             </div>
             <div class="birthday home-flex-x-start">
               <div>出生日期：</div>
               <div><input type="text" v-model="baseInfo.birthday"></div>
-              <!--<div v-if="limitMark && !baseInfo.phone" class="error-tip">请输入出生日期</div>-->
+              <!--<div v-if="limitMark && !baseInfo.birthday" class="error-tip">请输入出生日期</div>-->
             </div>
             <div class="password home-flex-x-start">
-              <div>密码：</div>
+              <div>密码<span class="red">*</span>：</div>
               <div><input type="text" v-model="baseInfo.password"></div>
-              <div v-if="limitMark && !baseInfo.phone" class="error-tip">请输入密码</div>
+              <div v-if="limitMark && !baseInfo.password" class="error-tip">请输入密码</div>
             </div>
             <div class="confirm-password home-flex-x-start">
-              <div>确认密码：</div>
+              <div>确认密码<span class="red">*</span>：</div>
               <div><input type="text" v-model="baseInfo.confirmPassword"></div>
-              <div v-if="limitMark && !baseInfo.phone" class="error-tip">请再次输入密码</div>
+              <div v-if="limitMark && !baseInfo.confirmPassword" class="error-tip">请再次输入密码</div>
             </div>
             <div class="self-word home-flex-x-start">
               <div>座右铭：</div>
               <div><input type="text" v-model="baseInfo.selfWord"></div>
-              <!--<div v-if="limitMark && !baseInfo.phone" class="error-tip">请输入座右铭</div>-->
+              <!--<div v-if="limitMark && !baseInfo.selfWord" class="error-tip">请输入座右铭</div>-->
             </div>
 
           </div>
@@ -75,6 +75,8 @@
 <script>
 import Header from '@/components/HeaderPc.vue'
 import { uploadImg, uploadBase64Img } from '@/api/detail'
+import { upBaseInfo } from '@/api/login'
+import cookie from 'component-cookie'
 import Dialog from '@/components/dialog.vue'
 import jcrop_plu from '@/utils/jcrop/jcrop'
 
@@ -114,7 +116,7 @@ export default {
 
   },
   methods: {
-    submit () {
+    async submit () {
       // 校验
       const mark = this.validate()
       if (!mark) {
@@ -128,9 +130,36 @@ export default {
         uploadImgPath: this.uploadImgPath
       }
 
+      try {
+        const dataList = await upBaseInfo(data)
 
+        let option = {
+          visiable: true,
+          html: dataList.original.msg || '操作成功',
+          btnType: 3,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+          callback: function () {
 
-      console.log(data)
+            // 1.5秒自动跳转添加资源页面.
+            setTimeout(() => {
+              window.location.href = './show.html#/detail'
+
+              cookie('login', '1', { maxage: 1 * 24 * 60 * 60 * 1000 }) // 记录登录状态(持续1天)
+            }, 1500)
+          }
+        }
+        this.message = option
+
+      } catch (error) {
+        let option = {
+          visiable: true,
+          html: error.message,
+          btnType: 1,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+        }
+        this.message = option
+
+      }
 
     },
     validate () {
@@ -140,7 +169,7 @@ export default {
       for (let key in this.baseInfo) {
 
         // 出生日期、座右铭不参加校验
-        if (key != 'birthday' || key != 'selfWord') {
+        if (key != 'birthday' && key != 'selfWord') {
           if (!this.baseInfo[key]) mark = false
         }
 
@@ -388,6 +417,10 @@ export default {
               & > div:first-child {
                 text-align: left;
                 width: 80px;
+
+                .red {
+                  color: #ff0000;
+                }
               }
 
               & > div:nth-child(2) {
