@@ -1,5 +1,5 @@
 <template>
-  <div class="login-pc">
+  <div class="apply-pc">
     <Header></Header>
 
     <div class="content">
@@ -385,7 +385,7 @@ export default {
     background: -ms-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
 
-    .login-pc {
+    .apply-pc {
       .content {
         position: relative;
         width: 800px;
