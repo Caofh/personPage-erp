@@ -133,7 +133,7 @@ export default {
 <style lang="scss">
   
   body {
-    /*渐变色*/
+    /*!*渐变色*!*/
     background: -moz-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255, 255, 255, 0)), color-stop(30%, rgba(255, 119, 17, 0.68)));
     background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%);
@@ -142,6 +142,7 @@ export default {
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%);
 
     .login-pc {
+
       .content {
         position: relative;
         width: 570px;

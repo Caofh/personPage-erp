@@ -197,14 +197,12 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
 
-  body {
-    background: #f0f0f0;
-  }
-
   .home-pc {
     font-family: Chalkduster;
     font-size: 14px;
     color: #335B89;
+    min-height: 800px;
+    background: #f0f0f0;
 
     .home-container {
       width: 1200px;

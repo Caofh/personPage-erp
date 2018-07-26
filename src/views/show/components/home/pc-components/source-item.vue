@@ -388,6 +388,7 @@ export default {
 
   .source-item-par {
     padding-top: 40px;
+    padding-bottom: 40px;
     .source-item {
       margin-bottom: 40px;
       padding-bottom: 80px;
