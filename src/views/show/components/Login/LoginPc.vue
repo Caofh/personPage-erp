@@ -9,7 +9,7 @@
           <div class="phone home-flex-x-between">
             <div class="home-img"><img src="../../assets/img/login/phone.png"></div>
             <div class="input-par">
-              <input type="text" placeholder="请输入手机/邮箱">
+              <input v-model="account" type="text" placeholder="请输入手机/邮箱">
             </div>
           </div>
 
@@ -17,17 +17,17 @@
           <div class="password home-flex-x-between">
             <div class="home-img"><img src="../../assets/img/login/lock.png"></div>
             <div class="input-par">
-              <input type="text" placeholder="请输入登录密码">
+              <input v-model="password" type="text" placeholder="请输入登录密码">
             </div>
           </div>
 
           <!--登录按钮-->
           <div class="btn-group home-flex-x-end">
-            <div class="home-btn">登录</div>
+            <div @click="login" class="home-btn">登录</div>
           </div>
         </div>
 
-        <a class="apply" href="javascript:;">我要注册!</a>
+        <a class="apply" href="./show.html#/apply">我要注册!</a>
 
       </div>
     </div>
@@ -45,12 +45,16 @@ import Dialog from '@/components/dialog.vue'
 //import $ from 'jquery'
 import { mapState } from "vuex"
 import { updateResource } from '@/api/detail'
+import { login } from '@/api/login'
 import moment from 'moment'
+import cookie from 'component-cookie'
 
 export default {
   name: 'Home',
   data () {
     return {
+      account: '', // 账号
+      password: '', // 密码
       message: {} //  dialog弹窗数据
     }
   },
@@ -64,7 +68,55 @@ export default {
 
   },
   methods: {
+    async login () {
+      const emailMark = /@.*.com/.test(this.account) // 正则验证是否为邮箱
 
+      const type = emailMark ? 2 : 1 // 如果是邮箱传2，电话传1
+      const data = {
+        phone: this.account,
+        password: this.password,
+        type: type
+      }
+
+      console.log(data)
+
+      try {
+        const dataList = await login(data)
+
+        let option = {
+          visiable: true,
+          html: dataList.original.msg || '操作成功',
+          btnType: 3,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+          callback: function () {
+
+            // 1.5秒自动跳转添加资源页面.
+            setTimeout(() => {
+              window.location.href = './show.html#/detail'
+
+              cookie('login', '1', { maxage: 1 * 24 * 60 * 60 * 1000 }) // 记录登录状态(持续1天)
+            }, 1500)
+          }
+        }
+        this.message = option
+
+
+      } catch (error) {
+        let option = {
+          visiable: true,
+          html: error.message,
+          btnType: 1,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+        }
+        this.message = option
+      }
+
+
+
+
+
+
+    }
   },
   mounted () {
 
