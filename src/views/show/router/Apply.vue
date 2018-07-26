@@ -61,7 +61,7 @@
   @import "../../../assets/css/base";
 
   body {
-    background: #f0f0f0;
+    /*background: #f0f0f0;*/
   }
 
 </style>

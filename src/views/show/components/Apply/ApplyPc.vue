@@ -378,12 +378,12 @@ export default {
   
   body {
     /*渐变色*/
-    background: -moz-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255, 255, 255, 0)), color-stop(30%, rgba(255, 119, 17, 0.68))) !important;
-    background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
-    background: -o-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
-    background: -ms-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%) !important;
+    background: -moz-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255, 255, 255, 0)), color-stop(30%, rgba(255, 119, 17, 0.68)));
+    background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%);
+    background: -o-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%);
+    background: -ms-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 119, 17, 0.68) 30%);
 
     .apply-pc {
       .content {

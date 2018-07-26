@@ -198,7 +198,7 @@ export default {
 <style lang="scss">
 
   body {
-    background: #f0f0f0 !important;
+    background: #f0f0f0;
   }
 
   .home-pc {
