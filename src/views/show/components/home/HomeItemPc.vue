@@ -201,7 +201,7 @@ export default {
     font-family: Chalkduster;
     font-size: 14px;
     color: #335B89;
-    min-height: 800px;
+    min-height: 1500px;
     background: #f0f0f0;
 
     .home-container {
