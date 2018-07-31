@@ -83,6 +83,11 @@ export default {
       try {
         const dataList = await login(data)
 
+        // 将用户token传入vue-x中保存起来
+        const token = dataList.original.token || ''
+        cookie('person-token', token, { maxage: 1 * 24 * 60 * 60 * 1000 }) // 记录登录状态(持续1天)
+//        console.log(token)
+
         let option = {
           visiable: true,
           html: dataList.original.msg || '操作成功',
@@ -93,8 +98,6 @@ export default {
             // 1.5秒自动跳转添加资源页面.
             setTimeout(() => {
               window.location.href = './show.html#/detail'
-
-              cookie('login', '1', { maxage: 1 * 24 * 60 * 60 * 1000 }) // 记录登录状态(持续1天)
             }, 1500)
           }
         }

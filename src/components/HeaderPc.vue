@@ -1,12 +1,15 @@
 <template>
   <div class="header-pc">
-    <div class="header-main home-flex-x-start">
+    <div class="header-main home-flex-x-between">
       <div class="title-logo">颖秀工作台</div>
+
+      <div class="logout home-btn" @click="logout">退出登录</div>
     </div>
   </div>
 </template>
 
 <script>
+  import cookie from 'component-cookie'
 
 export default {
   name: 'HeaderPc',
@@ -20,7 +23,11 @@ export default {
 
   },
   methods: {
+    logout () {
+      cookie('person-token', '')
 
+      window.location.href = './show.html#/'
+    }
   },
   mounted(){
 
@@ -47,6 +54,12 @@ export default {
       .title-logo {
         color: #f71;
         font-size: 20px;
+      }
+
+      .logout {
+        width: 80px;
+        height: 30px;
+        line-height: 30px;
       }
     }
   }

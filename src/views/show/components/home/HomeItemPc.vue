@@ -26,7 +26,7 @@
           </div>
 
           <div v-if="source.length" class="btn-group home-flex-x-start">
-            <div class="home-btn">预览</div>
+            <!--<div class="home-btn">预览</div>-->
             <div @click="submit" class="home-btn">提交</div>
           </div>
         </div>
@@ -58,6 +58,7 @@ import Dialog from '@/components/dialog.vue'
 import { mapState } from "vuex"
 import { updateResource } from '@/api/detail'
 import moment from 'moment'
+import cookie from 'component-cookie'
 
 export default {
   name: 'Home',
@@ -66,8 +67,8 @@ export default {
       title: 'my funny video', // 当前标题
       titleNext: '', // 临时存储title内容
       titleLimit: false, // 标题可变标识
-
-      nickname: 'Topay', // 昵称
+      user_id: '', // 当前用户的唯一识别id
+      nickname: '', // 昵称
 
       nowTime: moment(),
       message: {} //  dialog弹窗数据
@@ -75,7 +76,8 @@ export default {
   },
   computed: {
     ...mapState([
-      'source' // 当前资源
+      'source', // 当前资源
+      'baseInfo' // 用户的基本信息
     ]),
     nowTimeFormat () {
       return this.nowTime.format('YYYY-MM-DD hh:mm:ss')
@@ -83,6 +85,11 @@ export default {
 
   },
   created () {
+
+    const token = cookie('person-token')
+    if (!token) {
+      window.location.href = './show.html#/'
+    }
 
   },
   methods: {
@@ -127,7 +134,7 @@ export default {
 //      console.log(this.source)
 
       const title = this.title
-      const user_id = 1
+      const user_id = this.user_id
       const user_name = this.nickname
       const timestamp = this.nowTime.format('x')
 
@@ -158,11 +165,19 @@ export default {
       try {
         const dataList = await updateResource(data)
 
+        const context = '<div><div>'+dataList.original.msg+'</div><div>请在微信中搜索小程序"颖秀"</div><div>之后用注册的账号登录，即可欣赏效果</div></div>'
+
         let option = {
           visiable: true,
-          html: dataList.original.msg,
+          html: context,
           btnType: 1,        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
           size: 'small',     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+          buttons: {
+            confirm: function () {
+              window.location.reload()
+            }
+
+          }
         }
         this.message = option
 
@@ -177,6 +192,17 @@ export default {
         this.message = option
 
       }
+
+    }
+
+  },
+  watch: {
+    baseInfo: {
+      handler (val, oldVal) {
+        this.nickname = val.nickname || ''
+        this.user_id = val.id || '' // 当前用户的唯一识别id
+      },
+      deep: true
 
     }
 

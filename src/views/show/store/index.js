@@ -13,7 +13,9 @@ Object.assign(actions, payrollActions, homeActions)
 Object.assign(mutations, payrollMutations, homeMutations)
 
 let state = {
-  test: 1
+  test: 1,
+
+  baseInfo: {} // 用户基本信息
 }
 // 合并各个页面的store值
 state = Object.assign(state, payrollState, homeState)

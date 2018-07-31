@@ -7,6 +7,13 @@ import App from './App'
 
 Vue.config.productionTip = false
 
+router.afterEach((to,from,next) => {
+
+  // 获取用户基本信息
+  store.dispatch('init', to)
+
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
