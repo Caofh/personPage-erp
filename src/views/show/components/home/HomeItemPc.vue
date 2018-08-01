@@ -165,7 +165,7 @@ export default {
       try {
         const dataList = await updateResource(data)
 
-        const context = '<div><div>'+dataList.original.msg+'</div><div>请在微信中搜索小程序"颖秀"</div><div>之后用注册的账号登录，即可欣赏效果</div></div>'
+        const context = '<div><div>'+dataList.original.msg+'</div><div>请在微信中搜索小程序"颖秀"</div><div>进入即可欣赏效果</div></div>'
 
         let option = {
           visiable: true,
