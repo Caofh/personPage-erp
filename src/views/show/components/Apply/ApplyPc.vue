@@ -124,6 +124,16 @@ export default {
         return false
       }
 
+      if (!this.uploadImgPath) {
+        let option = {
+          visiable: true,
+          html: '亲，请上传头像哦~',
+          btnType: '',        //(2：二级确认弹窗；1：一级弹窗；‘’:无确认按钮(1.5秒自动取消)；3：无确认按钮(不会自动取消))
+          size: 'small'     //弹窗的类型，共三种类型，small，medium，big三种，分本为小中大弹窗，宽度：350，800，1100.可选，默认为small.
+        }
+        this.message = option
+        return false
+      }
 
       const data = {
         ...this.baseInfo,
