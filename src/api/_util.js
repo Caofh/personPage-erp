@@ -30,8 +30,8 @@ function callApi (apiRoot = '/') {
       baseURL: apiRoot,
       timeout: 10000,
       // headers: { 'Authorization': token }
-      // headers: {'content-type': 'application/x-www-form-urlencoded'}
-      headers: {'content-type': 'application/json'}
+      headers: {'content-type': 'application/x-www-form-urlencoded'}
+      // headers: {'content-type': 'application/json'}
     })
 
   obj.interceptors.request.use(config => {
